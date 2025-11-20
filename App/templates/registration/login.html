@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Login</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #0e1525, #090f1a);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #e6eef4;
+  }
+
+  .login-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 40px;
+    border-radius: 16px;
+    width: 350px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+  }
+
+  .login-card h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  label {
+    display: block;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #9aa5b1;
+  }
+
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: none;
+    background: #1a2333;
+    color: #e6eef4;
+    font-size: 15px;
+    outline: none;
+  }
+
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+    border: 1px solid #5bbb95;
+  }
+
+  .btn-login {
+    margin-top: 25px;
+    width: 100%;
+    background: #5bbb95;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #0f1724;
+    font-weight: 600;
+  }
+
+  .btn-login:hover {
+    opacity: 0.9;
+  }
+
+  .extras {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .extras a {
+    color: #5bbb95;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .extras a:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+  <div class="login-card">
+    <h2>Welcome Back</h2>
+    <form method="post">
+      {% csrf_token %}
+
+      <label for="id_username">Username</label>
+      <input type="text" name="username" id="id_username" required />
+
+      <label for="id_password">Password</label>
+      <input type="password" name="password" id="id_password" required />
+
+      <button type="submit" class="btn-login">Login</button>
+    </form>
+    <div class="extras">
+      <p><a href="{% url 'password_reset' %}">Forgot Password?</a></p>
+      <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+    </div>
+  </div>
+</body>
+</html>
+
+

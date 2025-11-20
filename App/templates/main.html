@@ -1,0 +1,95 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Music Player</title>
+
+  <!-- fonts + icons -->
+  <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css?family=Inter:300,400,600&display=swap" rel="stylesheet">
+
+  <!-- your stylesheet -->
+  <link href="{% static 'style.css' %}" rel="stylesheet" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">My Music</div>
+    <nav class="right-nav">
+      {% if user.is_authenticated %}
+        <span>Hi, {{ user.username }}</span> · <a href="{% url 'logout' %}">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}">Login</a> · <a href="{% url 'register' %}">Sign up</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="container-grid">
+    <!-- LEFT: Playlist -->
+    <aside class="playlist" id="playlist">
+      <h3>Playlist</h3>
+      <ul id="playlist-list" class="playlist-list">
+        {% for s in page_obj.paginator.object_list %}
+          <li class="playlist-item" data-id="{{ s.id }}" data-audio="{% if s.audio_file %}{{ s.audio_file.url }}{% else %}{{ s.audio_link }}{% endif %}" data-image="{{ s.image.url }}" data-artist="{{ s.artist }}" data-title="{{ s.title }}" data-lyrics="{{ s.lyrics|escapejs }}">
+            <img src="{{ s.image.url }}" alt="{{ s.title }}" class="plist-thumb"/>
+            <div class="plist-meta">
+              <div class="plist-title">{{ s.title }}</div>
+              <div class="plist-artist">{{ s.artist }}</div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="playlist-controls">
+        <button id="prev-track" title="Previous"><i class="fa fa-step-backward"></i></button>
+        <button id="next-track" title="Next"><i class="fa fa-step-forward"></i></button>
+      </div>
+    </aside>
+
+    <!-- CENTER: Player -->
+    <section class="player-card">
+      <div class="cover-and-info">
+        <img id="cover-image" class="cover-image" src="{% if page_obj.object_list %}{{ page_obj.object_list.0.image.url }}{% endif %}" alt="cover"/>
+        <div class="track-info">
+          <div id="track-artist" class="track-artist">{% if page_obj.object_list %}{{ page_obj.object_list.0.artist }}{% endif %}</div>
+          <div id="track-title" class="track-title">{% if page_obj.object_list %}{{ page_obj.object_list.0.title }}{% endif %}</div>
+        </div>
+      </div>
+
+      <div class="audio-wrapper">
+        <audio id="fc-media" preload="metadata">
+          {% if page_obj.object_list %}
+            <source id="audio-source" src="{% if page_obj.object_list.0.audio_file %}{{ page_obj.object_list.0.audio_file.url }}{% else %}{{ page_obj.object_list.0.audio_link }}{% endif %}" type="audio/mp3">
+          {% endif %}
+        </audio>
+        <div class="controls">
+          <button id="playpause" class="control-btn"><i class="fa fa-play"></i></button>
+          <div class="time">
+            <span id="current-time">0:00</span> / <span id="duration">0:00</span>
+          </div>
+          <input id="seek" type="range" min="0" max="100" value="0" />
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="1" />
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Lyrics -->
+    <aside class="lyrics-panel">
+      <h4>Lyrics</h4>
+      <div id="lyrics-scroll" class="lyrics-scroll" aria-live="polite">
+        <!-- JS will populate -->
+      </div>
+    </aside>
+  </main>
+
+  <!-- Put songs_json into DOM for JS to pick up -->
+  <script id="songs-data" type="application/json">{{ songs_json|safe }}</script>
+
+  <!-- include jquery + mediaelement (you have these) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/4.2.7/mediaelement-and-player.min.js"></script>
+
+  <!-- your updated script -->
+  <script src="{% static 'script.js' %}"></script>
+</body>
+</html>

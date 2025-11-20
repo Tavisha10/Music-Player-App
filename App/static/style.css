@@ -1,0 +1,182 @@
+/* Player Container */
+.lecteur {
+    width: 100%;
+    height: 60px; /* enough space for audio player */
+    position: relative;
+}
+
+/* MediaElement Controls */
+.mejs__container {
+    position: relative;
+    background-color: transparent;
+    min-width: auto !important;
+}
+
+.mejs__controls {
+    background: transparent !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+}
+
+/* Play/Pause Button */
+.mejs__controls .mejs__playpause-button {
+    position: relative !important;
+    width: 50px;
+    height: 50px;
+}
+
+.mejs__controls .mejs__playpause-button button {
+    width: 50px;
+    height: 50px;
+    font-family: FontAwesome;
+    font-size: 24px;
+    color: #5bbb95;
+    background: transparent;
+    border: none;
+}
+
+/* Play/Pause icons */
+.mejs__controls .mejs__play button:before {
+    content: "\f04b"; /* play */
+}
+.mejs__controls .mejs__pause button:before {
+    content: "\f04c"; /* pause */
+}
+
+/* Volume Button */
+.mejs__controls .mejs__volume-button button {
+    width: 40px;
+    height: 40px;
+    font-family: FontAwesome;
+    font-size: 20px;
+    color: #5bbb95;
+    background: transparent;
+    border: none;
+}
+
+/* Mute/Unmute icons */
+.mejs__controls .mejs__mute button:before {
+    content: "\f028";
+}
+.mejs__controls .mejs__unmute button:before {
+    content: "\f026";
+}
+
+/* Time and Progress */
+.mejs__controls .mejs__time {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    color: #fff;
+}
+
+.mejs__controls .mejs__time-current,
+.mejs__controls .mejs__duration {
+    font-size: 14px;
+    margin: 0 5px;
+}
+
+.mejs__controls .mejs__time-rail {
+    flex: 1;
+    margin: 0 5px;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.2);
+    position: relative;
+}
+
+.mejs__controls .mejs__time-current {
+    background: #5bbb95;
+    height: 100%;
+}
+/* --- Layout --- */
+:root {
+  --bg: #0f1724;
+  --card: #0b1220;
+  --accent: #5bbb95;
+  --muted: #9aa5b1;
+  --glass: rgba(255,255,255,0.03);
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg,#08101a 0%, #071018 100%);
+  color: #e6eef4;
+  min-height: 100vh;
+}
+
+.app-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 20px;
+  background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+  border-bottom:1px solid rgba(255,255,255,0.02);
+}
+
+.container-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr 320px;
+  gap: 18px;
+  padding: 18px;
+  max-width: 1200px;
+  margin: 20px auto;
+}
+
+/* playlist */
+.playlist {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 12px;
+}
+.playlist h3 { margin: 6px 0 12px; color: var(--muted); font-weight:600; }
+.playlist-list { list-style:none; padding:0; margin:0; max-height:60vh; overflow:auto; }
+.playlist-item { display:flex; gap:10px; padding:8px; align-items:center; border-radius:8px; cursor:pointer; transition:background .15s; }
+.playlist-item:hover { background: rgba(255,255,255,0.02); }
+.plist-thumb { width:48px; height:48px; object-fit:cover; border-radius:6px; }
+.plist-title { font-weight:600; font-size:14px; }
+.plist-artist { font-size:12px; color:var(--muted); }
+
+/* player center card */
+.player-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+  border-radius: 12px;
+  padding: 18px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  min-height:300px;
+}
+.cover-and-info { display:flex; gap:18px; align-items:center; }
+.cover-image { width:130px; height:130px; object-fit:cover; border-radius:8px; box-shadow: 0 6px 18px rgba(0,0,0,0.6); }
+.track-title { font-size:20px; font-weight:700; }
+.track-artist { color:var(--muted); }
+
+/* controls */
+.controls { display:flex; gap:12px; align-items:center; }
+.control-btn { background:transparent; border:none; font-size:20px; cursor:pointer; padding:10px; border-radius:8px; }
+.time { font-size:13px; color:var(--muted); }
+
+/* lyrics panel */
+.lyrics-panel { background: var(--card); border-radius:12px; padding:12px; display:flex; flex-direction:column; }
+.lyrics-scroll { overflow:auto; max-height:70vh; padding:8px; margin-top:6px; }
+.lyric-line { padding:6px 8px; border-radius:6px; color:var(--muted); font-size:14px; }
+.lyric-line.current { color: #fff; background: rgba(91,187,149,0.08); box-shadow: 0 6px 18px rgba(11,18,24,0.4); font-weight:700; }
+
+/* responsiveness */
+@media (max-width: 900px) {
+  .container-grid { grid-template-columns: 1fr; padding: 12px; }
+  .playlist, .lyrics-panel { order: 2; }
+  .player-card { order: 1; }
+  .cover-image { width:100px; height:100px; }
+}
+
+/* ensure custom input range is clickable above any overlay */
+input[type="range"] {
+  pointer-events: auto;
+  z-index: 5;   /* bring above any low z-index elements if needed */
+}
+
