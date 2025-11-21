@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environments
+venv/
+env/
+tanuenv/
+*.env
+
+# Django Stuff
+*.sqlite3
+db.sqlite3
+/media/
+staticfiles/
+
+# Logs
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE Folders
+.vscode/
+.idea/
+
+# Compiled / Cache
+*.egg-info/
+*.egg
+*.bak
