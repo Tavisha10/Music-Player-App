@@ -15,6 +15,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 from pathlib import Path
 import os
 from django.core.exceptions import ImproperlyConfigured
+import logging
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -46,6 +47,19 @@ def get_env_variable(name):
         raise ImproperlyConfigured(f"Missing required environment variable: {name}")
     return value
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler"
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": os.environ.get("DJANGO_LOG_LEVEL", "ERROR"),
+    },
+}
 # -----------------------
 # CORE SETTINGS
 # -----------------------
