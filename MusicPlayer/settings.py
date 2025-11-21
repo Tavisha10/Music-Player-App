@@ -11,19 +11,37 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from django.core.exceptions import ImproperlyConfigured
+from pathlib import Path
+from py_dotenv import read_dotenv
+
+
+def get_env_variable(name):
+    value = os.getenv(name)
+    if value is None:
+        raise ImproperlyConfigured(f"Set the {name} environment variable.")
+    return value
+
+SECRET_KEY = get_env_variable("SECRET_KEY")
+DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Base directory (do NOT change __file__)
+BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load .env from project root (BASE_DIR)
+read_dotenv(BASE_DIR / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'SECRET_KEY'
+#SECRET_KEY = 'SECRET_KEY'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+#DEBUG = False
+DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1")
 
 ALLOWED_HOSTS = []
 

@@ -1,44 +1,74 @@
-# Python
+# ============================================
+# Django / Python Ignore Patterns
+# ============================================
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 
+# C extensions
+*.so
+
+# ============================================
 # Virtual Environments
+# ============================================
 venv/
 env/
 tanuenv/
+.tanuenv/
+ENV/
+env.bak/
+venv.bak/
+
+# ============================================
+# SQLite DB (local only)
+# ============================================
+db.sqlite3
+*.sqlite3
+
+# ============================================
+# Django Static / Media
+# ============================================
+/media/
+/staticfiles/
+static/
+
+# ============================================
+# Environment Variables
+# ============================================
+.env
 *.env
 
-# Django Stuff
-*.sqlite3
-db.sqlite3
-/media/
-staticfiles/
-
+# ============================================
 # Logs
+# ============================================
 *.log
 
-# OS Files
+# ============================================
+# IDE / Editor
+# ============================================
+.vscode/
+.idea/
+*.swp
 .DS_Store
 Thumbs.db
 
-# IDE Folders
-.vscode/
-.idea/
-
-# Compiled / Cache
+# ============================================
+# Packaging
+# ============================================
 *.egg-info/
 *.egg
+dist/
+build/
+
+# ============================================
+# Python dotenv cache (rare)
+# ============================================
+*.dotenv
+
+# ============================================
+# Local test files
+# ============================================
 *.bak
-__pycache__/
-*.py[cod]
-*.pyc
-tanuenv/
-.DS_Store
-.vscode/
-staticfiles/
-media/
-db.sqlite3
-env/
-venv/
