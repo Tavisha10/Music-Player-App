@@ -1,1 +1,1 @@
-web: gunicorn MusicPlayerDjango.wsgi --log-file -
+web: gunicorn MusicPlayer.wsgi --log-file -

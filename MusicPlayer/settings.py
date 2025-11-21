@@ -9,29 +9,56 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
-
+# =======================
+# ENVIRONMENT / SETTINGS
+# =======================
+from pathlib import Path
 import os
 from django.core.exceptions import ImproperlyConfigured
-from pathlib import Path
-from py_dotenv import read_dotenv
 
-
-def get_env_variable(name):
-    value = os.getenv(name)
-    if value is None:
-        raise ImproperlyConfigured(f"Set the {name} environment variable.")
-    return value
-
-SECRET_KEY = get_env_variable("SECRET_KEY")
-DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1")
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# Base directory (do NOT change __file__)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env from project root (BASE_DIR)
-read_dotenv(BASE_DIR / ".env")
+# -----------------------
+# SAFE .env LOADING
+# -----------------------
+# Try python-dotenv first, fallback to py_dotenv
+DOTENV_PATH = BASE_DIR / ".env"
+
+try:
+    from dotenv import load_dotenv
+    if DOTENV_PATH.exists():
+        load_dotenv(DOTENV_PATH)
+except Exception:
+    try:
+        from py_dotenv import read_dotenv
+        if DOTENV_PATH.exists():
+            read_dotenv(DOTENV_PATH)
+    except Exception:
+        pass
+# If .env doesn't exist, no error — Render will provide environment variables.
+
+# -----------------------
+# ENV VARIABLE HANDLER
+# -----------------------
+def get_env_variable(name):
+    value = os.environ.get(name)
+    if value is None:
+        raise ImproperlyConfigured(f"Missing required environment variable: {name}")
+    return value
+
+# -----------------------
+# CORE SETTINGS
+# -----------------------
+SECRET_KEY = get_env_variable("SECRET_KEY")
+
+DEBUG = os.environ.get("DEBUG", "False").lower() in ("1", "true", "yes")
+
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if not DEBUG else ["*"]
+
+
+
+
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -41,9 +68,7 @@ read_dotenv(BASE_DIR / ".env")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = False
-DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1")
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
