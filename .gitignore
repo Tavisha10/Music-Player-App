@@ -31,3 +31,14 @@ Thumbs.db
 *.egg-info/
 *.egg
 *.bak
+__pycache__/
+*.py[cod]
+*.pyc
+tanuenv/
+.DS_Store
+.vscode/
+staticfiles/
+media/
+db.sqlite3
+env/
+venv/
