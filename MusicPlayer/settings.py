@@ -75,7 +75,7 @@ LOGGING = {
 # -----------------------
 # CORE SETTINGS
 # -----------------------
-SECRET_KEY = get_env_variable("SECRET_KEY", "django-insecure-fallback-key")
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-fallback-key")
 
 DEBUG = os.environ.get("DEBUG", "False").lower() in ("1", "true", "yes")
 
