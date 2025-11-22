@@ -75,11 +75,11 @@ LOGGING = {
 # -----------------------
 # CORE SETTINGS
 # -----------------------
-SECRET_KEY = get_env_variable("SECRET_KEY")
+SECRET_KEY = get_env_variable("SECRET_KEY", "django-insecure-fallback-key")
 
 DEBUG = os.environ.get("DEBUG", "False").lower() in ("1", "true", "yes")
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if not DEBUG else ["*"]
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if not DEBUG else ["*"]
 
 
 
