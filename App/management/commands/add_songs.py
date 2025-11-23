@@ -49,6 +49,7 @@ class Command(BaseCommand):
                 'image_file': 'postmalone.jpg',
                 'lyrics_file': 'Rockstar.json'
             },
+            # Add more songs here...
         ]
 
         # Media folder paths
@@ -64,7 +65,7 @@ class Command(BaseCommand):
                     data = json.load(f)
                     return data.get('lyrics', '')
             except Exception as e:
-                self.stdout.write(self.style.WARNING(f'Error reading lyrics ({lyrics_path}): {str(e)}'))
+                self.stdout.write(self.style.WARNING(f'Error reading lyrics: {str(e)}'))
                 return ''
 
         # Add songs to database
@@ -76,7 +77,17 @@ class Command(BaseCommand):
                 lyrics_path = os.path.join(LYRICS_FOLDER, song_data['lyrics_file'])
 
                 # Load lyrics from JSON file
-                lyrics_text = load_lyrics_from_json(lyrics_path)
+                lyrics_text = ''
+                lyrics_json_data = None
+                
+                if os.path.exists(lyrics_path):
+                    try:
+                        with open(lyrics_path, 'r', encoding='utf-8') as f:
+                            data = json.load(f)
+                            lyrics_text = data.get('lyrics', '')
+                            lyrics_json_data = data.get('lyrics_json', None)
+                    except Exception as e:
+                        self.stdout.write(self.style.WARNING(f'Error reading lyrics: {str(e)}'))
 
                 # Create or update song
                 song, created = Song.objects.get_or_create(
@@ -85,25 +96,10 @@ class Command(BaseCommand):
                         'artist': song_data['artist'],
                         'duration': song_data['duration'],
                         'lyrics': lyrics_text,
+                        'lyrics_json': lyrics_json_data,
                         'audio_link': '',
                     }
                 )
-
-                # If the song already existed, update fields that we want to keep in sync
-                if not created:
-                    updated = False
-                    if song.artist != song_data['artist']:
-                        song.artist = song_data['artist']
-                        updated = True
-                    if song.duration != song_data['duration']:
-                        song.duration = song_data['duration']
-                        updated = True
-                    # Update lyrics if we were able to load them
-                    if lyrics_text and song.lyrics != lyrics_text:
-                        song.lyrics = lyrics_text
-                        updated = True
-                    if updated:
-                        song.save()
 
                 # Add audio file if it exists
                 if os.path.exists(audio_path):
@@ -128,12 +124,6 @@ class Command(BaseCommand):
                     self.stdout.write(f'  ✓ Image: {song_data["image_file"]}')
                 else:
                     self.stdout.write(self.style.WARNING(f'  ✗ Image not found: {image_path}'))
-
-                # Lyrics feedback
-                if lyrics_text:
-                    self.stdout.write(f'  ✓ Lyrics loaded from: {song_data["lyrics_file"]}')
-                else:
-                    self.stdout.write(self.style.WARNING(f'  ✗ No lyrics found in: {song_data["lyrics_file"]}'))
 
                 if created:
                     self.stdout.write(self.style.SUCCESS(f'✓ Added: {song.title} by {song.artist}\n'))
