@@ -84,8 +84,16 @@ class Command(BaseCommand):
                     try:
                         with open(lyrics_path, 'r', encoding='utf-8') as f:
                             data = json.load(f)
-                            lyrics_text = data.get('lyrics', '')
-                            lyrics_json_data = data.get('lyrics_json', None)
+                            
+                            # Handle syncedlyrics format (array of {time, lyrics})
+                            if isinstance(data, list):
+                                lyrics_json_data = data
+                                # Convert to plain text for lyrics field
+                                lyrics_text = '\n'.join([item.get('lyrics', '') for item in data if item.get('lyrics')])
+                            # Handle custom format {lyrics, lyrics_json}
+                            elif isinstance(data, dict):
+                                lyrics_text = data.get('lyrics', '')
+                                lyrics_json_data = data.get('lyrics_json', None)
                     except Exception as e:
                         self.stdout.write(self.style.WARNING(f'Error reading lyrics: {str(e)}'))
 
