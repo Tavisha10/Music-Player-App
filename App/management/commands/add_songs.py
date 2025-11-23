@@ -14,7 +14,7 @@ class Command(BaseCommand):
                 'artist': 'Justin Bieber',
                 'duration': '2:15',
                 'audio_file': 'Stay.mp3',
-                'image_file': 'Stay.jpg',
+                'image_file': 'Stay.jpeg',
                 'lyrics_file': 'Stay.json'
             },
             {
@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 'artist': 'KATSEYE',
                 'duration': '3:08',
                 'audio_file': 'Gabriela.mp3',
-                'image_file': 'Gabriela.jpg',
+                'image_file': 'Gabriela.jpeg',
                 'lyrics_file': 'Gabriela.json'
             },
             {
@@ -30,7 +30,7 @@ class Command(BaseCommand):
                 'artist': 'Doja Cat',
                 'duration': '3:50',
                 'audio_file': 'DojaCat.mp3',
-                'image_file': 'paint_the_town_red.jpg',
+                'image_file': 'paint_the_town_red.jpeg',
                 'lyrics_file': 'paint_the_town_red.json'
             },
             {
