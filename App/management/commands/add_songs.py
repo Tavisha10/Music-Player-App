@@ -1,7 +1,6 @@
 import os
 import json
 from django.core.management.base import BaseCommand
-from django.core.files import File
 from App.models import Song
 
 class Command(BaseCommand):
@@ -52,93 +51,69 @@ class Command(BaseCommand):
             # Add more songs here...
         ]
 
-        # Media folder paths
-        MEDIA_ROOT = 'media'
-        AUDIO_FOLDER = os.path.join(MEDIA_ROOT, 'audio')
-        IMAGE_FOLDER = os.path.join(MEDIA_ROOT, 'images')
-        LYRICS_FOLDER = os.path.join(MEDIA_ROOT, 'lyrics')
+        # Media folder paths - these are stored as paths, not uploaded
+        LYRICS_FOLDER = os.path.join('media', 'lyrics')
 
         # Function to load lyrics from JSON
-        def load_lyrics_from_json(lyrics_path):
+        def load_lyrics_from_json(lyrics_file):
+            lyrics_path = os.path.join(LYRICS_FOLDER, lyrics_file)
+            if not os.path.exists(lyrics_path):
+                return '', None
+            
             try:
                 with open(lyrics_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                    return data.get('lyrics', '')
+                    
+                    # Handle syncedlyrics format (array of {time, lyrics})
+                    if isinstance(data, list):
+                        lyrics_json_data = data
+                        lyrics_text = '\n'.join([item.get('lyrics', '') for item in data if item.get('lyrics')])
+                        return lyrics_text, lyrics_json_data
+                    # Handle custom format {lyrics, lyrics_json}
+                    elif isinstance(data, dict):
+                        lyrics_text = data.get('lyrics', '')
+                        lyrics_json_data = data.get('lyrics_json', None)
+                        return lyrics_text, lyrics_json_data
+            except json.JSONDecodeError as e:
+                self.stdout.write(self.style.ERROR(f'  ✗ JSON error in {lyrics_file}: {str(e)}'))
             except Exception as e:
-                self.stdout.write(self.style.WARNING(f'Error reading lyrics: {str(e)}'))
-                return ''
+                self.stdout.write(self.style.ERROR(f'  ✗ Error reading {lyrics_file}: {str(e)}'))
+            
+            return '', None
 
         # Add songs to database
         for song_data in songs_data:
             try:
-                # Construct file paths
-                audio_path = os.path.join(AUDIO_FOLDER, song_data['audio_file'])
-                image_path = os.path.join(IMAGE_FOLDER, song_data['image_file'])
-                lyrics_path = os.path.join(LYRICS_FOLDER, song_data['lyrics_file'])
-
-                # Load lyrics from JSON file
-                lyrics_text = ''
-                lyrics_json_data = None
+                # Construct file paths (just the path strings, not actual files)
+                audio_path = f"audio/{song_data['audio_file']}"
+                image_path = f"images/{song_data['image_file']}"
                 
-                if os.path.exists(lyrics_path):
-                    try:
-                        with open(lyrics_path, 'r', encoding='utf-8') as f:
-                            data = json.load(f)
-                            
-                            # Handle syncedlyrics format (array of {time, lyrics})
-                            if isinstance(data, list):
-                                lyrics_json_data = data
-                                # Convert to plain text for lyrics field
-                                lyrics_text = '\n'.join([item.get('lyrics', '') for item in data if item.get('lyrics')])
-                            # Handle custom format {lyrics, lyrics_json}
-                            elif isinstance(data, dict):
-                                lyrics_text = data.get('lyrics', '')
-                                lyrics_json_data = data.get('lyrics_json', None)
-                    except Exception as e:
-                        self.stdout.write(self.style.WARNING(f'Error reading lyrics: {str(e)}'))
+                # Load lyrics from JSON file
+                lyrics_text, lyrics_json_data = load_lyrics_from_json(song_data['lyrics_file'])
 
-                # Create or update song
-                song, created = Song.objects.get_or_create(
+                # Create or update song with file PATHS only
+                song, created = Song.objects.update_or_create(
                     title=song_data['title'],
                     defaults={
                         'artist': song_data['artist'],
                         'duration': song_data['duration'],
                         'lyrics': lyrics_text,
                         'lyrics_json': lyrics_json_data,
+                        'audio_file': audio_path,  # Store path as string
+                        'image': image_path,  # Store path as string
                         'audio_link': '',
                     }
                 )
 
-                # Add audio file if it exists
-                if os.path.exists(audio_path):
-                    with open(audio_path, 'rb') as audio:
-                        song.audio_file.save(
-                            song_data['audio_file'],
-                            File(audio),
-                            save=True
-                        )
-                    self.stdout.write(f'  ✓ Audio: {song_data["audio_file"]}')
-                else:
-                    self.stdout.write(self.style.WARNING(f'  ✗ Audio not found: {audio_path}'))
-
-                # Add image file if it exists
-                if os.path.exists(image_path):
-                    with open(image_path, 'rb') as img:
-                        song.image.save(
-                            song_data['image_file'],
-                            File(img),
-                            save=True
-                        )
-                    self.stdout.write(f'  ✓ Image: {song_data["image_file"]}')
-                else:
-                    self.stdout.write(self.style.WARNING(f'  ✗ Image not found: {image_path}'))
-
+                if lyrics_json_data:
+                    self.stdout.write(f'  ✓ Lyrics: {len(lyrics_json_data) if isinstance(lyrics_json_data, list) else "loaded"}')
+                
                 if created:
-                    self.stdout.write(self.style.SUCCESS(f'✓ Added: {song.title} by {song.artist}\n'))
+                    self.stdout.write(self.style.SUCCESS(f'✓ Added: {song.title} by {song.artist}'))
                 else:
-                    self.stdout.write(self.style.SUCCESS(f'→ Updated: {song.title}\n'))
+                    self.stdout.write(self.style.SUCCESS(f'→ Updated: {song.title}'))
 
             except Exception as e:
-                self.stdout.write(self.style.ERROR(f'✗ Error adding {song_data["title"]}: {str(e)}\n'))
+                self.stdout.write(self.style.ERROR(f'✗ Error with {song_data["title"]}: {str(e)}'))
 
-        self.stdout.write(self.style.SUCCESS('Done!'))
+        self.stdout.write(self.style.SUCCESS('\nDone!'))
