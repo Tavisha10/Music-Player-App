@@ -19,7 +19,7 @@ class Command(BaseCommand):
             {
                 'title': 'Gabriela',
                 'artist': 'KATSEYE',
-                'duration': '3:08',
+                'duration': '3:20',
                 'audio_file': 'Gabriela.mp3',
                 'image_file': 'Gabriela.jpeg',
                 'lyrics_file': 'Gabriela.json'
@@ -33,22 +33,21 @@ class Command(BaseCommand):
                 'lyrics_file': 'paint_the_town_red.json'
             },
             {
-                'title': 'Hua Main from Movie: Animal',
-                'artist': 'Pritam Chakraborty',
-                'duration': '4:29',
-                'audio_file': 'Hua_Main_Animal.mp3',
-                'image_file': 'hua-main-animal-500-500.jpg',
-                'lyrics_file': 'Hua_main.json'
-            },
-            {
                 'title': 'Rockstar',
                 'artist': 'Post Malone',
-                'duration': '4:31',
+                'duration': '3:38',
                 'audio_file': 'Post_Malone_rockstar.mp3',
                 'image_file': 'postmalone.jpg',
                 'lyrics_file': 'Rockstar.json'
             },
-            # Add more songs here...
+            {
+                'title': 'Hua Main from Movie: Animal',
+                'artist': 'Pritam Chakraborty',
+                'duration': '4:15',
+                'audio_file': 'Hua_Main_Animal.mp3',
+                'image_file': 'hua-main-animal-500-500.jpg',
+                'lyrics_file': 'Hua Main from Movie Animal.json'
+            },
         ]
 
         # Media folder paths - these are stored as paths, not uploaded
@@ -84,14 +83,18 @@ class Command(BaseCommand):
         # Add songs to database
         for song_data in songs_data:
             try:
-                # Construct file paths (just the path strings, not actual files)
-                audio_path = f"audio/{song_data['audio_file']}"
-                image_path = f"images/{song_data['image_file']}"
+                # Construct actual file paths to check existence
+                audio_full_path = os.path.join('media', 'audio', song_data['audio_file'])
+                image_full_path = os.path.join('media', 'images', song_data['image_file'])
+                
+                # Paths for saving in database (relative to MEDIA_ROOT)
+                audio_db_path = f"audio/{song_data['audio_file']}"
+                image_db_path = f"images/{song_data['image_file']}"
                 
                 # Load lyrics from JSON file
                 lyrics_text, lyrics_json_data = load_lyrics_from_json(song_data['lyrics_file'])
 
-                # Create or update song with file PATHS only
+                # Create or update song
                 song, created = Song.objects.update_or_create(
                     title=song_data['title'],
                     defaults={
@@ -99,11 +102,24 @@ class Command(BaseCommand):
                         'duration': song_data['duration'],
                         'lyrics': lyrics_text,
                         'lyrics_json': lyrics_json_data,
-                        'audio_file': audio_path,  # Store path as string
-                        'image': image_path,  # Store path as string
                         'audio_link': '',
                     }
                 )
+                
+                # Set file paths directly (Django will handle them as paths)
+                if os.path.exists(audio_full_path):
+                    song.audio_file = audio_db_path
+                    self.stdout.write(f'  ✓ Audio: {song_data["audio_file"]}')
+                else:
+                    self.stdout.write(self.style.WARNING(f'  ⚠ Audio not found: {audio_full_path}'))
+                
+                if os.path.exists(image_full_path):
+                    song.image = image_db_path
+                    self.stdout.write(f'  ✓ Image: {song_data["image_file"]}')
+                else:
+                    self.stdout.write(self.style.WARNING(f'  ⚠ Image not found: {image_full_path}'))
+                
+                song.save()
 
                 if lyrics_json_data:
                     self.stdout.write(f'  ✓ Lyrics: {len(lyrics_json_data) if isinstance(lyrics_json_data, list) else "loaded"}')

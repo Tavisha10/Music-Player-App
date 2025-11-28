@@ -31,7 +31,7 @@
       <h3>Playlist</h3>
       <ul id="playlist-list" class="playlist-list">
         {% for s in page_obj.paginator.object_list %}
-          <li class="playlist-item" data-id="{{ s.id }}" data-audio="{% if s.audio_file %}{{ s.audio_file.url }}{% else %}{{ s.audio_link }}{% endif %}" data-image="{{ s.image.url }}" data-artist="{{ s.artist }}" data-title="{{ s.title }}" data-lyrics="{{ s.lyrics|escapejs }}">
+          <li class="playlist-item" data-id="{{ s.id }}" data-audio="{% if s.audio_file %}{{ s.audio_file.url }}{% else %}{{ s.audio_link }}{% endif %}" data-image="{{ s.image.url }}" data-artist="{{ s.artist }}" data-title="{{ s.title }}" data-lyrics="{{ s.lyrics|escapejs }}" data-lyrics-json="{{ s.lyrics_json|safe }}">
             <img src="{{ s.image.url }}" alt="{{ s.title }}" class="plist-thumb"/>
             <div class="plist-meta">
               <div class="plist-title">{{ s.title }}</div>
@@ -83,7 +83,7 @@
   </main>
 
   <!-- Put songs_json into DOM for JS to pick up -->
-  <script id="songs-data" type="application/json">{{ songs_json|safe }}</script>
+  <script id="songs-data" type="application/json">{{songs_json|safe}}</script>
 
   <!-- include jquery + mediaelement (you have these) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>

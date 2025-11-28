@@ -25,42 +25,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // NEW loadTrack: set audio.src directly (important)
   function loadTrack(index) {
-    if (!songs[index]) return;
-    currentIndex = index;
-    const track = songs[index];
+  if (!songs[index]) return;
+  currentIndex = index;
+  const track = songs[index];
 
-    // set the real audio element's src — this is the reliable way
-    audio.src = track.audio;
-    audio.load(); // reload metadata and duration
-    // update UI
-    document.getElementById('cover-image').src = track.image || '';
-    document.getElementById('track-title').innerText = track.title || '';
-    document.getElementById('track-artist').innerText = track.artist || '';
+  // set the real audio element's src — this is the reliable way
+  audio.src = track.audio;
+  audio.load(); // reload metadata and duration
+  // update UI
+  document.getElementById('cover-image').src = track.image || '';
+  document.getElementById('track-title').innerText = track.title || '';
+  document.getElementById('track-artist').innerText = track.artist || '';
 
-    renderLyrics(track.lyrics);
+  // USE lyrics_json instead of lyrics
+  renderLyrics(track.lyrics_json || track.lyrics);
+}
+
+  function parseLyrics(lyricsData) {
+  if (!lyricsData) return [];
+  
+  // If it's already an array (from lyrics_json), parse it directly
+  if (Array.isArray(lyricsData)) {
+    return lyricsData.map(item => ({
+      t: timeToSeconds(item.time || item.timestamp || "0:00"),
+      text: item.lyrics || item.text || ''
+    }));
   }
-
-  function parseLyrics(lyricsRaw) {
-    if (!lyricsRaw) return [];
-    try {
-      const parsed = JSON.parse(lyricsRaw);
-      if (Array.isArray(parsed)) {
-        return parsed.map(item => ({
-          t: timeToSeconds(item.time || item.timestamp || item.t || "0:00"),
-          text: item.lyrics || item.text || ''
-        }));
-      }
-    } catch (e) {}
-    // fallback to LRC-style
-    const lines = (lyricsRaw || '').split(/\r?\n/);
-    const out = [];
-    lines.forEach(line => {
-      const m = line.match(/\[(\d{1,2}:\d{2}(?:\.\d{1,2})?)\](.*)/);
-      if (m) out.push({ t: timeToSeconds(m[1]), text: m[2].trim() });
-    });
-    return out;
-  }
-
+  
+  // Otherwise, try to parse as JSON string
+  try {
+    const parsed = JSON.parse(lyricsData);
+    if (Array.isArray(parsed)) {
+      return parsed.map(item => ({
+        t: timeToSeconds(item.time || item.timestamp || "0:00"),
+        text: item.lyrics || item.text || ''
+      }));
+    }
+  } catch (e) {}
+  
+  // fallback to plain text LRC-style
+  const lines = (lyricsData || '').toString().split(/\r?\n/);
+  const out = [];
+  lines.forEach(line => {
+    const m = line.match(/\[(\d{1,2}:\d{2}(?:\.\d{1,2})?)\](.*)/);
+    if (m) out.push({ t: timeToSeconds(m[1]), text: m[2].trim() });
+    else if (line.trim()) out.push({ t: 0, text: line.trim() });
+  });
+  return out;
+}
   function timeToSeconds(timeStr) {
     if (!timeStr) return 0;
     const parts = timeStr.split(':');

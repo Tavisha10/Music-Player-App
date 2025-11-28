@@ -28,6 +28,7 @@ def index(request):
             'image': s.image.url if s.image else '',
             'audio': s.audio_file.url if s.audio_file else s.audio_link,
             'lyrics': s.lyrics,  # ensure this is JSON text or escape it properly
+            'lyrics_json': s.lyrics_json, 
         })
 
     return render(request, "main.html", {
