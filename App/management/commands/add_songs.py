@@ -46,7 +46,7 @@ class Command(BaseCommand):
                 'duration': '4:15',
                 'audio_file': 'Hua_Main_Animal.mp3',
                 'image_file': 'hua-main-animal-500-500.jpg',
-                'lyrics_file': 'Hua Main from Movie Animal.json'
+                'lyrics_file': 'Hua_main.json'
             },
         ]
 
